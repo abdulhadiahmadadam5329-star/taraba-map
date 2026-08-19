@@ -10,125 +10,126 @@
 href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 <style>
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box;
+}
 
 html,body{
-    margin:0;
-    padding:0;
-    width:100%;
-    height:100%;
-    font-family:Arial,sans-serif;
+  margin:0;
+  padding:0;
+  height:100%;
+  font-family:Arial,sans-serif;
 }
 
 body{
-    background:#f5f7f6;
+  background:#f4f7f5;
 }
 
 header{
-    background:#087f5b;
-    color:white;
-    text-align:center;
-    padding:14px 10px;
+  background:#087f5b;
+  color:white;
+  text-align:center;
+  padding:14px 10px;
 }
 
 header h1{
-    margin:0;
-    font-size:22px;
+  margin:0;
+  font-size:23px;
 }
 
 header p{
-    margin:5px 0 0;
-    font-size:13px;
+  margin:5px 0 0;
+  font-size:13px;
 }
 
 .panel{
-    background:white;
-    padding:10px;
-    box-shadow:0 2px 8px rgba(0,0,0,.18);
-    position:relative;
-    z-index:1000;
+  background:white;
+  padding:10px;
+  position:relative;
+  z-index:1000;
+  box-shadow:0 2px 8px rgba(0,0,0,.2);
 }
 
 label{
-    display:block;
-    margin:4px 0;
-    font-size:13px;
-    font-weight:bold;
+  display:block;
+  font-size:13px;
+  font-weight:bold;
+  margin:4px 0;
 }
 
 select,input{
-    width:100%;
-    padding:11px;
-    margin-bottom:7px;
-    border:1px solid #ccc;
-    border-radius:8px;
-    font-size:15px;
-    background:white;
+  width:100%;
+  padding:12px;
+  margin-bottom:7px;
+  border:1px solid #ccc;
+  border-radius:8px;
+  background:white;
+  font-size:16px;
 }
 
 button{
-    width:100%;
-    padding:12px;
-    margin-bottom:7px;
-    border:0;
-    border-radius:8px;
-    background:#087f5b;
-    color:white;
-    font-size:15px;
-    font-weight:bold;
+  width:100%;
+  padding:12px;
+  margin-bottom:7px;
+  border:0;
+  border-radius:8px;
+  background:#087f5b;
+  color:white;
+  font-size:15px;
+  font-weight:bold;
 }
 
 .blue{
-    background:#1565c0;
+  background:#1565c0;
 }
 
 .red{
-    background:#d62828;
+  background:#d62828;
 }
 
 #status{
-    padding:5px 0;
-    font-size:13px;
-    font-weight:bold;
+  padding:6px 0;
+  font-size:13px;
+  font-weight:bold;
 }
 
 #result{
-    font-size:14px;
-    line-height:1.5;
-    padding:4px 0;
+  font-size:14px;
+  line-height:1.5;
+  padding:5px 0;
 }
 
 #map{
-    width:100%;
-    height:calc(100vh - 440px);
-    min-height:400px;
+  width:100%;
+  height:calc(100vh - 465px);
+  min-height:400px;
 }
 
 .live-label{
-    background:#1565c0;
-    color:white;
-    border:0;
-    border-radius:6px;
-    padding:5px 8px;
-    font-weight:bold;
+  background:#1565c0;
+  color:white;
+  border:0;
+  border-radius:6px;
+  padding:5px 8px;
+  font-weight:bold;
 }
 
 .from-label{
-    background:#087f5b;
-    color:white;
-    border:0;
-    border-radius:6px;
-    padding:5px 8px;
-    font-weight:bold;
+  background:#087f5b;
+  color:white;
+  border:0;
+  border-radius:6px;
+  padding:5px 8px;
+  font-weight:bold;
 }
 
 .to-label{
-    background:#d62828;
-    color:white;
-    border:0;
-    border-radius:6px;
-    padding:5px 8px;
-    font-weight:bold;
+  background:#d62828;
+  color:white;
+  border:0;
+  border-radius:6px;
+  padding:5px 8px;
+  font-weight:bold;
 }
 </style>
 </head>
@@ -136,8 +137,8 @@ button{
 <body>
 
 <header>
-    <h1>🇳🇬 Taraba Live Map</h1>
-    <p>LGA • Ward • Area • Live GPS • Road Route</p>
+  <h1>🇳🇬 Taraba Live Map</h1>
+  <p>LGA • Ward • Area • Live Location • Route</p>
 </header>
 
 <div class="panel">
@@ -145,27 +146,27 @@ button{
 <label>🏛️ State</label>
 
 <select id="state">
-    <option value="Taraba">Taraba</option>
+  <option value="Taraba">Taraba</option>
 </select>
 
 <label>🏛️ LGA</label>
 
 <select id="lga">
-    <option value="">Loading LGAs...</option>
+  <option>Loading...</option>
 </select>
 
 <label>🏘️ Ward</label>
 
 <select id="ward" disabled>
-    <option value="">Select LGA first</option>
+  <option>Select LGA first</option>
 </select>
 
-<label>📍 Area / Place</label>
+<label>📍 Area</label>
 
 <input
-id="area"
-type="text"
-placeholder="Enter area or place"
+  id="area"
+  type="text"
+  placeholder="Enter area or place"
 >
 
 <button onclick="showArea()">
@@ -175,17 +176,17 @@ placeholder="Enter area or place"
 <label>🛣️ From</label>
 
 <input
-id="from"
-type="text"
-placeholder="Example: Jalingo"
+  id="from"
+  type="text"
+  placeholder="Example: Jalingo"
 >
 
 <label>🛣️ To</label>
 
 <input
-id="to"
-type="text"
-placeholder="Example: Wukari"
+  id="to"
+  type="text"
+  placeholder="Example: Wukari"
 >
 
 <button onclick="calculateRoute()">
@@ -205,7 +206,7 @@ GPS is not active.
 </div>
 
 <div id="result">
-Loading Taraba locations...
+Loading Taraba...
 </div>
 
 </div>
@@ -216,29 +217,31 @@ Loading Taraba locations...
 
 <script>
 
-/* =====================================================
+/* =========================================
    MAP
-===================================================== */
+========================================= */
 
 const map = L.map("map").setView(
-    [8.0,10.6],
-    8
+  [8.0,10.6],
+  8
 );
 
 L.tileLayer(
-    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    {
-        maxZoom:19,
-        attribution:"© OpenStreetMap contributors"
-    }
+  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+  {
+    maxZoom:19,
+    attribution:"© OpenStreetMap contributors"
+  }
 ).addTo(map);
 
 
-/* =====================================================
+/* =========================================
    VARIABLES
-===================================================== */
+========================================= */
 
-let data = null;
+let fullData = [];
+
+let tarabaData = null;
 
 let liveMarker = null;
 let accuracyCircle = null;
@@ -251,902 +254,818 @@ let toMarker = null;
 let routeLine = null;
 
 
-/* =====================================================
-   DATA SOURCE
-=====================================================
-
-   Real Nigeria administrative dataset.
-   It contains:
-   State
-   LGA
-   Ward
-   Coordinates
-===================================================== */
+/* =========================================
+   CORRECT DATA URL
+========================================= */
 
 const DATA_URL =
-"https://raw.githubusercontent.com/open-admin-data/nigeria-administrative-divisions/main/data/hierarchy.json";
+"https://raw.githubusercontent.com/temikeezy/nigeria-geojson-data/main/data/full.json";
 
 
-/* =====================================================
+/* =========================================
    LOAD DATA
-===================================================== */
+========================================= */
 
-async function loadData(){
+async function loadTaraba(){
 
-    try{
+  const result =
+  document.getElementById("result");
 
-        document.getElementById("result").innerHTML =
-        "🔎 Loading Taraba LGAs and wards...";
+  try{
 
-        const response =
-        await fetch(DATA_URL);
+    result.innerHTML =
+    "🔎 Loading real Taraba LGA and Ward data...";
 
-        if(!response.ok){
-            throw new Error("Could not load data");
-        }
+    const response =
+    await fetch(DATA_URL);
 
-        data =
-        await response.json();
+    if(!response.ok){
 
-        setupTaraba();
-
-    }
-    catch(error){
-
-        console.error(error);
-
-        document.getElementById("result").innerHTML =
-        "❌ Could not load the Taraba administrative data.";
+      throw new Error(
+        "Data could not be downloaded"
+      );
 
     }
-}
 
-
-/* =====================================================
-   FIND TARABA
-===================================================== */
-
-function setupTaraba(){
-
-    let taraba = null;
+    fullData =
+    await response.json();
 
     /*
-       Different dataset structures are handled here.
+      Find Taraba.
     */
 
-    if(Array.isArray(data)){
-
-        taraba =
-        data.find(
-            x =>
-            x.name?.en === "Taraba" ||
-            x.name === "Taraba"
-        );
-
-    }
-    else{
-
-        taraba =
-        data.Taraba ||
-        data.taraba;
-
-    }
-
-    if(!taraba){
-
-        document.getElementById("result").innerHTML =
-        "❌ Taraba data was not found.";
-
-        return;
-    }
-
-    window.tarabaData = taraba;
-
-    loadLGAs(taraba);
-}
-
-
-/* =====================================================
-   LOAD LGAs
-===================================================== */
-
-function loadLGAs(taraba){
-
-    const lgaSelect =
-    document.getElementById("lga");
-
-    lgaSelect.innerHTML =
-    '<option value="">Select LGA</option>';
-
-    let lgas = [];
-
-    /*
-       Try common hierarchy formats.
-    */
-
-    if(Array.isArray(taraba.children)){
-
-        lgas = taraba.children;
-
-    }
-    else if(Array.isArray(taraba.lgas)){
-
-        lgas = taraba.lgas;
-
-    }
-
-    /*
-       Save them.
-    */
-
-    window.tarabaLGAs = lgas;
-
-    lgas.forEach(
-        (lga,index)=>{
-
-            const option =
-            document.createElement("option");
-
-            option.value = index;
-
-            option.textContent =
-            getName(lga);
-
-            lgaSelect.appendChild(option);
-
-        }
+    tarabaData =
+    fullData.find(
+      item =>
+      String(item.state).toLowerCase()
+      ===
+      "taraba"
     );
 
-    lgaSelect.onchange =
-    function(){
+    if(!tarabaData){
 
-        loadWards(
-            Number(this.value)
-        );
+      throw new Error(
+        "Taraba was not found"
+      );
 
-    };
+    }
+
+    loadLGAs();
+
+  }
+  catch(error){
+
+    console.error(error);
+
+    result.innerHTML =
+    "❌ Could not load Taraba data.<br>" +
+    "Please check your internet connection.";
+
+  }
+
+}
+
+
+/* =========================================
+   LOAD ALL TAraba LGAs
+========================================= */
+
+function loadLGAs(){
+
+  const lga =
+  document.getElementById("lga");
+
+  lga.innerHTML =
+  '<option value="">Select LGA</option>';
+
+  if(
+    !tarabaData.lgas ||
+    !Array.isArray(tarabaData.lgas)
+  ){
 
     document.getElementById("result").innerHTML =
+    "❌ Taraba LGA data is unavailable.";
+
+    return;
+
+  }
+
+  tarabaData.lgas.forEach(
+    (item,index)=>{
+
+      const option =
+      document.createElement("option");
+
+      option.value = index;
+
+      option.textContent =
+      item.name;
+
+      lga.appendChild(option);
+
+    }
+  );
+
+  document.getElementById("result").innerHTML =
     "🇳🇬 <b>Taraba State</b><br>" +
-    "Select an LGA to see its wards.";
+    "Choose an LGA.";
 
 }
 
 
-/* =====================================================
-   GET NAME
-===================================================== */
+/* =========================================
+   LGA CHANGE
+========================================= */
 
-function getName(item){
+document.getElementById("lga")
+.addEventListener(
+  "change",
+  function(){
 
-    if(typeof item === "string"){
-        return item;
-    }
+    const index =
+    Number(this.value);
 
-    return (
-        item?.name?.en ||
-        item?.name?.local ||
-        item?.name ||
-        item?.level_name?.en ||
-        "Unknown"
-    );
-
-}
-
-
-/* =====================================================
-   GET COORDINATES
-===================================================== */
-
-function getCoordinates(item){
-
-    const lat =
-    Number(
-        item?.geo?.lat ??
-        item?.latitude ??
-        item?.lat
-    );
-
-    const lon =
-    Number(
-        item?.geo?.lon ??
-        item?.longitude ??
-        item?.lon
-    );
-
-    if(
-        Number.isFinite(lat) &&
-        Number.isFinite(lon)
-    ){
-
-        return {
-            lat,
-            lon
-        };
-
-    }
-
-    return null;
-
-}
-
-
-/* =====================================================
-   LOAD WARDS
-===================================================== */
-
-function loadWards(index){
-
-    const wardSelect =
+    const ward =
     document.getElementById("ward");
 
-    wardSelect.innerHTML =
+    ward.innerHTML =
     '<option value="">Select Ward</option>';
 
-    wardSelect.disabled = true;
+    ward.disabled = true;
 
     if(
-        !Number.isInteger(index) ||
-        !window.tarabaLGAs[index]
+      !Number.isInteger(index) ||
+      !tarabaData.lgas[index]
     ){
 
-        return;
+      return;
+
+    }
+
+    const selectedLGA =
+    tarabaData.lgas[index];
+
+    if(
+      !selectedLGA.wards ||
+      !Array.isArray(selectedLGA.wards)
+    ){
+
+      return;
+
+    }
+
+    selectedLGA.wards.forEach(
+      (item,i)=>{
+
+        const option =
+        document.createElement("option");
+
+        option.value = i;
+
+        option.textContent =
+        item.name;
+
+        ward.appendChild(option);
+
+      }
+    );
+
+    ward.disabled = false;
+
+    document.getElementById("result").innerHTML =
+      "🏛️ LGA: <b>" +
+      selectedLGA.name +
+      "</b><br>" +
+      "🏘️ Now choose a Ward.";
+
+  }
+);
+
+
+/* =========================================
+   WARD CHANGE
+========================================= */
+
+document.getElementById("ward")
+.addEventListener(
+  "change",
+  function(){
+
+    const lgaIndex =
+    Number(
+      document.getElementById("lga").value
+    );
+
+    const wardIndex =
+    Number(this.value);
+
+    if(
+      !tarabaData.lgas[lgaIndex]
+    ){
+
+      return;
 
     }
 
     const lga =
-    window.tarabaLGAs[index];
-
-    let wards = [];
-
-    if(Array.isArray(lga.children)){
-
-        wards = lga.children;
-
-    }
-    else if(Array.isArray(lga.wards)){
-
-        wards = lga.wards;
-
-    }
-
-    window.currentWards = wards;
-
-    wards.forEach(
-        (ward,i)=>{
-
-            const option =
-            document.createElement("option");
-
-            option.value = i;
-
-            option.textContent =
-            getName(ward);
-
-            wardSelect.appendChild(option);
-
-        }
-    );
-
-    wardSelect.disabled = false;
-
-    document.getElementById("result").innerHTML =
-    "🏛️ LGA: <b>"+
-    getName(lga)+
-    "</b><br>"+
-    "Select a ward.";
-
-    wardSelect.onchange =
-    showWard;
-
-}
-
-
-/* =====================================================
-   SHOW WARD
-===================================================== */
-
-function showWard(){
-
-    const index =
-    Number(
-        document.getElementById("ward").value
-    );
-
-    if(
-        !Number.isInteger(index) ||
-        !window.currentWards[index]
-    ){
-
-        return;
-
-    }
+    tarabaData.lgas[lgaIndex];
 
     const ward =
-    window.currentWards[index];
+    lga.wards[wardIndex];
 
-    const coordinates =
-    getCoordinates(ward);
+    if(!ward){
 
-    if(!coordinates){
+      return;
 
-        document.getElementById("result").innerHTML =
-        "⚠️ This ward has no coordinates.";
+    }
 
-        return;
+    const lat =
+    Number(ward.latitude);
+
+    const lon =
+    Number(ward.longitude);
+
+    if(
+      !Number.isFinite(lat) ||
+      !Number.isFinite(lon)
+    ){
+
+      document.getElementById("result").innerHTML =
+      "⚠️ This ward has no map coordinates.";
+
+      return;
 
     }
 
     if(selectedMarker){
 
-        map.removeLayer(selectedMarker);
+      map.removeLayer(
+        selectedMarker
+      );
 
     }
 
     selectedMarker =
     L.marker(
-        [
-            coordinates.lat,
-            coordinates.lon
-        ]
+      [lat,lon]
     )
     .addTo(map)
     .bindTooltip(
-        getName(ward),
-        {
-            permanent:true,
-            direction:"top"
-        }
+      ward.name,
+      {
+        permanent:true,
+        direction:"top"
+      }
     );
 
     map.setView(
-        [
-            coordinates.lat,
-            coordinates.lon
-        ],
-        14
+      [lat,lon],
+      14
     );
 
-    document.getElementById("result").innerHTML =
-    "🏘️ Ward: <b>"+
-    getName(ward)+
-    "</b><br>"+
-    "📍 Location displayed on map.";
-
     document.getElementById("area").value =
-    getName(ward);
+      ward.name;
 
-}
+    document.getElementById("to").value =
+      ward.name + ", " +
+      lga.name + ", Taraba";
+
+    document.getElementById("result").innerHTML =
+      "🏛️ LGA: <b>" +
+      lga.name +
+      "</b><br>" +
+      "🏘️ Ward: <b>" +
+      ward.name +
+      "</b><br>" +
+      "📍 Ward shown on map.";
+
+  }
+);
 
 
-/* =====================================================
-   AREA
-===================================================== */
+/* =========================================
+   SHOW AREA
+========================================= */
 
 async function showArea(){
 
-    const area =
-    document.getElementById("area")
-    .value
-    .trim();
+  const area =
+  document.getElementById("area")
+  .value
+  .trim();
 
-    if(!area){
-
-        document.getElementById("result").innerHTML =
-        "⚠️ Enter an area or place.";
-
-        return;
-
-    }
+  if(!area){
 
     document.getElementById("result").innerHTML =
+      "⚠️ Enter an area.";
+
+    return;
+
+  }
+
+  document.getElementById("result").innerHTML =
     "🔎 Finding area...";
 
-    try{
+  try{
 
-        const result =
-        await geocode(area);
+    const result =
+    await searchPlace(area);
 
-        if(!result){
+    if(!result){
 
-            document.getElementById("result").innerHTML =
-            "❌ Area not found.";
+      document.getElementById("result").innerHTML =
+        "❌ Area not found.";
 
-            return;
-
-        }
-
-        if(selectedMarker){
-
-            map.removeLayer(selectedMarker);
-
-        }
-
-        selectedMarker =
-        L.marker(
-            [
-                result.lat,
-                result.lon
-            ]
-        )
-        .addTo(map)
-        .bindTooltip(
-            area,
-            {
-                permanent:true,
-                direction:"top"
-            }
-        );
-
-        map.setView(
-            [
-                result.lat,
-                result.lon
-            ],
-            15
-        );
-
-        document.getElementById("result").innerHTML =
-        "📍 Area: <b>"+
-        area+
-        "</b><br>"+
-        "🗺️ Location shown on map.";
-
-    }
-    catch(error){
-
-        document.getElementById("result").innerHTML =
-        "❌ Could not find this area.";
+      return;
 
     }
 
-}
+    if(selectedMarker){
 
+      map.removeLayer(
+        selectedMarker
+      );
 
-/* =====================================================
-   GEOCODE
-===================================================== */
+    }
 
-async function geocode(place){
-
-    const url =
-    "https://nominatim.openstreetmap.org/search"+
-    "?format=jsonv2"+
-    "&limit=1"+
-    "&q="+
-    encodeURIComponent(
-        place+
-        ", Taraba, Nigeria"
+    selectedMarker =
+    L.marker(
+      [
+        result.lat,
+        result.lon
+      ]
+    )
+    .addTo(map)
+    .bindTooltip(
+      area,
+      {
+        permanent:true,
+        direction:"top"
+      }
     );
 
-    const response =
-    await fetch(url);
+    map.setView(
+      [
+        result.lat,
+        result.lon
+      ],
+      15
+    );
 
-    const results =
-    await response.json();
+    document.getElementById("result").innerHTML =
+      "📍 Area: <b>" +
+      area +
+      "</b><br>" +
+      "🗺️ Location shown.";
 
-    if(!results.length){
+  }
+  catch(error){
 
-        return null;
+    document.getElementById("result").innerHTML =
+      "❌ Area search failed.";
 
-    }
-
-    return {
-        lat:Number(results[0].lat),
-        lon:Number(results[0].lon)
-    };
+  }
 
 }
 
 
-/* =====================================================
+/* =========================================
+   SEARCH PLACE
+========================================= */
+
+async function searchPlace(place){
+
+  const url =
+  "https://nominatim.openstreetmap.org/search" +
+  "?format=jsonv2" +
+  "&limit=1" +
+  "&q=" +
+  encodeURIComponent(
+    place + ", Taraba, Nigeria"
+  );
+
+  const response =
+  await fetch(url);
+
+  const data =
+  await response.json();
+
+  if(!data.length){
+
+    return null;
+
+  }
+
+  return {
+
+    lat:
+    Number(data[0].lat),
+
+    lon:
+    Number(data[0].lon)
+
+  };
+
+}
+
+
+/* =========================================
    LIVE GPS
-===================================================== */
+========================================= */
 
 function startGPS(){
 
-    if(!navigator.geolocation){
-
-        document.getElementById("status").innerHTML =
-        "❌ GPS is not supported.";
-
-        return;
-
-    }
+  if(!navigator.geolocation){
 
     document.getElementById("status").innerHTML =
+      "❌ GPS is not supported.";
+
+    return;
+
+  }
+
+  document.getElementById("status").innerHTML =
     "🔎 Getting your live location...";
 
-    if(watchID !== null){
+  if(watchID !== null){
 
-        navigator.geolocation.clearWatch(
-            watchID
-        );
-
-    }
-
-    watchID =
-    navigator.geolocation.watchPosition(
-        updateGPS,
-        gpsError,
-        {
-            enableHighAccuracy:true,
-            maximumAge:3000,
-            timeout:20000
-        }
+    navigator.geolocation.clearWatch(
+      watchID
     );
+
+  }
+
+  watchID =
+  navigator.geolocation.watchPosition(
+    updateGPS,
+    gpsError,
+    {
+      enableHighAccuracy:true,
+      maximumAge:3000,
+      timeout:20000
+    }
+  );
 
 }
 
 
-/* =====================================================
+/* =========================================
    GPS UPDATE
-===================================================== */
+========================================= */
 
 function updateGPS(position){
 
-    const lat =
-    position.coords.latitude;
+  const lat =
+  position.coords.latitude;
 
-    const lon =
-    position.coords.longitude;
+  const lon =
+  position.coords.longitude;
 
-    /*
-       Accuracy is deliberately NOT shown.
-    */
+  /*
+    We intentionally do NOT show
+    GPS accuracy.
+  */
 
-    document.getElementById("status").innerHTML =
+  document.getElementById("status").innerHTML =
     "🟢 LIVE GPS ACTIVE";
 
-    if(!liveMarker){
+  if(!liveMarker){
 
-        liveMarker =
-        L.marker(
-            [
-                lat,
-                lon
-            ]
-        )
-        .addTo(map)
-        .bindTooltip(
-            "📍 YOU ARE HERE",
-            {
-                permanent:true,
-                direction:"top",
-                className:"live-label"
-            }
-        );
+    liveMarker =
+    L.marker(
+      [lat,lon]
+    )
+    .addTo(map)
+    .bindTooltip(
+      "📍 YOU ARE HERE",
+      {
+        permanent:true,
+        direction:"top",
+        className:"live-label"
+      }
+    );
 
-        accuracyCircle =
-        L.circle(
-            [
-                lat,
-                lon
-            ],
-            {
-                radius:30,
-                weight:1,
-                fillOpacity:.08
-            }
-        ).addTo(map);
+    accuracyCircle =
+    L.circle(
+      [lat,lon],
+      {
+        radius:30,
+        weight:1,
+        fillOpacity:.08
+      }
+    ).addTo(map);
 
-        map.setView(
-            [
-                lat,
-                lon
-            ],
-            16
-        );
+    map.setView(
+      [lat,lon],
+      16
+    );
 
-    }
-    else{
+  }
+  else{
 
-        liveMarker.setLatLng(
-            [
-                lat,
-                lon
-            ]
-        );
+    liveMarker.setLatLng(
+      [lat,lon]
+    );
 
-        accuracyCircle.setLatLng(
-            [
-                lat,
-                lon
-            ]
-        );
+    accuracyCircle.setLatLng(
+      [lat,lon]
+    );
 
-    }
+  }
 
-    document.getElementById("result").innerHTML =
+  document.getElementById("result").innerHTML =
     "📍 <b>Your live location is active.</b>";
 
 }
 
 
-/* =====================================================
+/* =========================================
    GPS ERROR
-===================================================== */
+========================================= */
 
 function gpsError(error){
 
-    if(error.code === 1){
+  if(error.code === 1){
 
-        document.getElementById("status").innerHTML =
-        "❌ Location permission denied.";
+    document.getElementById("status").innerHTML =
+      "❌ Location permission denied.";
 
-    }
-    else if(error.code === 2){
+  }
+  else if(error.code === 2){
 
-        document.getElementById("status").innerHTML =
-        "❌ Location unavailable.";
+    document.getElementById("status").innerHTML =
+      "❌ Location unavailable.";
 
-    }
-    else if(error.code === 3){
+  }
+  else if(error.code === 3){
 
-        document.getElementById("status").innerHTML =
-        "❌ GPS timed out.";
+    document.getElementById("status").innerHTML =
+      "❌ GPS timed out.";
 
-    }
-    else{
+  }
+  else{
 
-        document.getElementById("status").innerHTML =
-        "❌ GPS error.";
+    document.getElementById("status").innerHTML =
+      "❌ GPS error.";
 
-    }
+  }
 
 }
 
 
-/* =====================================================
+/* =========================================
    STOP GPS
-===================================================== */
+========================================= */
 
 function stopGPS(){
 
-    if(watchID !== null){
+  if(watchID !== null){
 
-        navigator.geolocation.clearWatch(
-            watchID
-        );
+    navigator.geolocation.clearWatch(
+      watchID
+    );
 
-        watchID = null;
+    watchID = null;
 
-    }
+  }
 
-    document.getElementById("status").innerHTML =
+  document.getElementById("status").innerHTML =
     "🔴 Live GPS stopped.";
 
 }
 
 
-/* =====================================================
+/* =========================================
    ROUTE
-===================================================== */
+========================================= */
 
 async function calculateRoute(){
 
-    const fromText =
-    document.getElementById("from")
-    .value
-    .trim();
+  const fromText =
+  document.getElementById("from")
+  .value
+  .trim();
 
-    const toText =
-    document.getElementById("to")
-    .value
-    .trim();
+  const toText =
+  document.getElementById("to")
+  .value
+  .trim();
 
-    if(!fromText || !toText){
-
-        document.getElementById("result").innerHTML =
-        "⚠️ Enter both From and To.";
-
-        return;
-
-    }
+  if(!fromText || !toText){
 
     document.getElementById("result").innerHTML =
+      "⚠️ Enter From and To.";
+
+    return;
+
+  }
+
+  document.getElementById("result").innerHTML =
     "🔎 Finding route...";
 
-    try{
+  try{
 
-        const from =
-        await geocode(fromText);
+    const from =
+    await searchPlace(fromText);
 
-        const to =
-        await geocode(toText);
+    const to =
+    await searchPlace(toText);
 
-        if(!from || !to){
+    if(!from || !to){
 
-            document.getElementById("result").innerHTML =
-            "❌ Could not find one of the locations.";
+      document.getElementById("result").innerHTML =
+        "❌ One of the locations was not found.";
 
-            return;
-
-        }
-
-        if(fromMarker){
-
-            map.removeLayer(fromMarker);
-
-        }
-
-        if(toMarker){
-
-            map.removeLayer(toMarker);
-
-        }
-
-        if(routeLine){
-
-            map.removeLayer(routeLine);
-
-        }
-
-        fromMarker =
-        L.marker(
-            [
-                from.lat,
-                from.lon
-            ],
-            {
-                draggable:true
-            }
-        )
-        .addTo(map)
-        .bindTooltip(
-            "FROM",
-            {
-                permanent:true,
-                direction:"top",
-                className:"from-label"
-            }
-        );
-
-        toMarker =
-        L.marker(
-            [
-                to.lat,
-                to.lon
-            ],
-            {
-                draggable:true
-            }
-        )
-        .addTo(map)
-        .bindTooltip(
-            "TO",
-            {
-                permanent:true,
-                direction:"top",
-                className:"to-label"
-            }
-        );
-
-        await drawRoute(
-            from.lat,
-            from.lon,
-            to.lat,
-            to.lon
-        );
-
-    }
-    catch(error){
-
-        console.error(error);
-
-        document.getElementById("result").innerHTML =
-        "❌ Route service error.";
+      return;
 
     }
 
-}
+    if(fromMarker){
 
-
-/* =====================================================
-   DRAW ROUTE
-===================================================== */
-
-async function drawRoute(
-    fromLat,
-    fromLon,
-    toLat,
-    toLon
-){
-
-    const url =
-    "https://router.project-osrm.org/route/v1/driving/"+
-    fromLon+
-    ","+
-    fromLat+
-    ";"+
-    toLon+
-    ","+
-    toLat+
-    "?overview=full&geometries=geojson";
-
-    const response =
-    await fetch(url);
-
-    const data =
-    await response.json();
-
-    if(data.code !== "Ok"){
-
-        document.getElementById("result").innerHTML =
-        "❌ No road route found.";
-
-        return;
+      map.removeLayer(
+        fromMarker
+      );
 
     }
 
-    const route =
-    data.routes[0];
+    if(toMarker){
 
-    routeLine =
-    L.geoJSON(
-        route.geometry,
-        {
-            style:{
-                weight:6,
-                opacity:.85
-            }
-        }
-    ).addTo(map);
+      map.removeLayer(
+        toMarker
+      );
 
-    const km =
-    (route.distance/1000)
-    .toFixed(1);
+    }
 
-    const minutes =
-    Math.round(
-        route.duration/60
+    if(routeLine){
+
+      map.removeLayer(
+        routeLine
+      );
+
+    }
+
+    fromMarker =
+    L.marker(
+      [from.lat,from.lon],
+      {
+        draggable:true
+      }
+    )
+    .addTo(map)
+    .bindTooltip(
+      "FROM",
+      {
+        permanent:true,
+        direction:"top",
+        className:"from-label"
+      }
     );
 
-    let time;
+    toMarker =
+    L.marker(
+      [to.lat,to.lon],
+      {
+        draggable:true
+      }
+    )
+    .addTo(map)
+    .bindTooltip(
+      "TO",
+      {
+        permanent:true,
+        direction:"top",
+        className:"to-label"
+      }
+    );
 
-    if(minutes >= 60){
+    await drawRoute(
+      from.lat,
+      from.lon,
+      to.lat,
+      to.lon
+    );
 
-        time =
-        Math.floor(minutes/60)+
-        " hr "+
-        (minutes%60)+
-        " min";
+  }
+  catch(error){
 
-    }
-    else{
-
-        time =
-        minutes+
-        " min";
-
-    }
+    console.error(error);
 
     document.getElementById("result").innerHTML =
-    "🛣️ <b>Route ready</b><br>"+
-    "📏 Distance: <b>"+
-    km+
-    " km</b><br>"+
-    "⏱️ Estimated time: <b>"+
-    time+
-    "</b>";
+      "❌ Route service error.";
 
-    map.fitBounds(
-        routeLine.getBounds(),
-        {
-            padding:[30,30]
-        }
-    );
+  }
 
 }
 
 
-/* =====================================================
-   START
-===================================================== */
+/* =========================================
+   DRAW ROUTE
+========================================= */
 
-loadData();
+async function drawRoute(
+  fromLat,
+  fromLon,
+  toLat,
+  toLon
+){
+
+  const url =
+  "https://router.project-osrm.org/route/v1/driving/" +
+  fromLon +
+  "," +
+  fromLat +
+  ";" +
+  toLon +
+  "," +
+  toLat +
+  "?overview=full&geometries=geojson";
+
+  const response =
+  await fetch(url);
+
+  const data =
+  await response.json();
+
+  if(data.code !== "Ok"){
+
+    document.getElementById("result").innerHTML =
+      "❌ No road route found.";
+
+    return;
+
+  }
+
+  const route =
+  data.routes[0];
+
+  routeLine =
+  L.geoJSON(
+    route.geometry,
+    {
+      style:{
+        weight:6,
+        opacity:.85
+      }
+    }
+  ).addTo(map);
+
+  const km =
+  (
+    route.distance /
+    1000
+  ).toFixed(1);
+
+  const minutes =
+  Math.round(
+    route.duration /
+    60
+  );
+
+  let time;
+
+  if(minutes >= 60){
+
+    time =
+      Math.floor(minutes / 60) +
+      " hr " +
+      (minutes % 60) +
+      " min";
+
+  }
+  else{
+
+    time =
+      minutes +
+      " min";
+
+  }
+
+  document.getElementById("result").innerHTML =
+    "🛣️ <b>Route ready</b><br>" +
+    "📏 Distance: <b>" +
+    km +
+    " km</b><br>" +
+    "⏱️ Estimated time: <b>" +
+    time +
+    "</b>";
+
+  map.fitBounds(
+    routeLine.getBounds(),
+    {
+      padding:[30,30]
+    }
+  );
+
+}
+
+
+/* =========================================
+   START
+========================================= */
+
+loadTaraba();
 
 </script>
 
 </body>
-  </html>
+    </html>
