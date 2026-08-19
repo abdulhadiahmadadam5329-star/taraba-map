@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
   <title>Taraba Live Map</title>
 
@@ -43,10 +48,8 @@
     .panel {
       background: white;
       padding: 10px;
-
       position: relative;
       z-index: 1000;
-
       box-shadow: 0 2px 8px rgba(0,0,0,.2);
     }
 
@@ -54,31 +57,29 @@
       width: 100%;
       padding: 12px;
       margin-bottom: 7px;
-
       border: 1px solid #ccc;
       border-radius: 8px;
-
       font-size: 16px;
     }
 
     button {
       width: 100%;
       padding: 12px;
-
       margin-bottom: 6px;
-
       border: none;
       border-radius: 8px;
-
       background: #087f5b;
       color: white;
-
       font-size: 15px;
       font-weight: bold;
     }
 
     .stop {
       background: #d62828;
+    }
+
+    .location {
+      background: #1565c0;
     }
 
     #status {
@@ -93,7 +94,16 @@
 
     #map {
       width: 100%;
-      height: calc(100vh - 270px);
+      height: calc(100vh - 290px);
+    }
+
+    .live-label {
+      background: #1565c0;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 5px 8px;
+      font-weight: bold;
     }
 
     .from-label {
@@ -101,7 +111,6 @@
       color: white;
       border: none;
       border-radius: 6px;
-
       padding: 5px 8px;
       font-weight: bold;
     }
@@ -111,25 +120,17 @@
       color: white;
       border: none;
       border-radius: 6px;
-
-      padding: 5px 8px;
-      font-weight: bold;
-    }
-
-    .live-label {
-      background: #1565c0;
-      color: white;
-      border: none;
-      border-radius: 6px;
-
       padding: 5px 8px;
       font-weight: bold;
     }
 
   </style>
+
 </head>
 
+
 <body>
+
 
 <header>
 
@@ -144,11 +145,13 @@
 
 <div class="panel">
 
+
   <input
     id="from"
     type="text"
     placeholder="📍 From — e.g. Gassol"
   >
+
 
   <input
     id="to"
@@ -156,13 +159,19 @@
     placeholder="📍 To — e.g. Jalingo"
   >
 
+
   <button onclick="calculateRoute()">
     🛣️ SHOW ROUTE
   </button>
 
-  <button onclick="startLiveLocation()">
+
+  <button
+    class="location"
+    onclick="startLiveLocation()"
+  >
     📍 START LIVE LOCATION
   </button>
+
 
   <button
     class="stop"
@@ -171,13 +180,20 @@
     ⛔ STOP LIVE LOCATION
   </button>
 
+
   <div id="status">
+
     GPS is not active.
+
   </div>
 
+
   <div id="result">
+
     Enter a destination or start live location.
+
   </div>
+
 
 </div>
 
@@ -193,9 +209,10 @@
 <script>
 
 
-/* =====================================
+/* =========================================
    MAP
-===================================== */
+========================================= */
+
 
 const map =
   L.map("map")
@@ -205,9 +222,10 @@ const map =
    );
 
 
-/* =====================================
-   OPEN STREET MAP
-===================================== */
+/* =========================================
+   OPENSTREETMAP
+========================================= */
+
 
 L.tileLayer(
 
@@ -218,7 +236,7 @@ L.tileLayer(
     maxZoom: 19,
 
     attribution:
-      '&copy; OpenStreetMap contributors'
+      "&copy; OpenStreetMap contributors"
 
   }
 
@@ -226,9 +244,10 @@ L.tileLayer(
 
 
 
-/* =====================================
+/* =========================================
    VARIABLES
-===================================== */
+========================================= */
+
 
 let liveMarker = null;
 
@@ -243,20 +262,122 @@ let fromMarker = null;
 let toMarker = null;
 
 
+/* GPS STABILITY */
 
-/* =====================================
-   START LIVE GPS
-===================================== */
+let lastStableLat = null;
+
+let lastStableLon = null;
+
+
+/*
+   Minimum movement required before
+   updating the marker.
+*/
+
+const MIN_MOVEMENT_METERS = 10;
+
+
+
+/* =========================================
+   DISTANCE BETWEEN GPS POINTS
+========================================= */
+
+
+function distanceMeters(
+
+  lat1,
+  lon1,
+  lat2,
+  lon2
+
+) {
+
+
+  const R =
+    6371000;
+
+
+  const p1 =
+    lat1 *
+    Math.PI /
+    180;
+
+
+  const p2 =
+    lat2 *
+    Math.PI /
+    180;
+
+
+  const dp =
+    (
+      lat2 -
+      lat1
+    ) *
+    Math.PI /
+    180;
+
+
+  const dl =
+    (
+      lon2 -
+      lon1
+    ) *
+    Math.PI /
+    180;
+
+
+  const a =
+
+    Math.sin(dp / 2) *
+    Math.sin(dp / 2)
+
+    +
+
+    Math.cos(p1) *
+    Math.cos(p2) *
+    Math.sin(dl / 2) *
+    Math.sin(dl / 2);
+
+
+  const c =
+
+    2 *
+
+    Math.atan2(
+
+      Math.sqrt(a),
+
+      Math.sqrt(
+        1 - a
+      )
+
+    );
+
+
+  return R * c;
+
+}
+
+
+
+/* =========================================
+   START LIVE LOCATION
+========================================= */
+
 
 function startLiveLocation() {
 
 
-  if (!navigator.geolocation) {
+  if (
+    !navigator.geolocation
+  ) {
 
     document.getElementById(
       "status"
     ).innerHTML =
-      "❌ GPS is not supported by this browser.";
+
+      "❌ GPS is not supported.";
 
     return;
 
@@ -266,12 +387,22 @@ function startLiveLocation() {
   document.getElementById(
     "status"
   ).innerHTML =
-    "🔎 Getting your GPS location...";
+
+    "🔎 Getting your location...";
 
 
-  /* STOP PREVIOUS WATCH */
+  /* RESET */
 
-  if (watchID !== null) {
+  lastStableLat = null;
+
+  lastStableLon = null;
+
+
+  /* STOP OLD WATCH */
+
+  if (
+    watchID !== null
+  ) {
 
     navigator.geolocation.clearWatch(
       watchID
@@ -280,9 +411,10 @@ function startLiveLocation() {
   }
 
 
-  /* START WATCH */
+  /* START GPS */
 
   watchID =
+
     navigator.geolocation.watchPosition(
 
       updateLiveLocation,
@@ -293,9 +425,9 @@ function startLiveLocation() {
 
         enableHighAccuracy: true,
 
-        maximumAge: 2000,
+        maximumAge: 1000,
 
-        timeout: 15000
+        timeout: 20000
 
       }
 
@@ -305,18 +437,23 @@ function startLiveLocation() {
 
 
 
-/* =====================================
+/* =========================================
    UPDATE LIVE LOCATION
-===================================== */
+========================================= */
 
-function updateLiveLocation(position) {
+
+function updateLiveLocation(
+  position
+) {
 
 
   const lat =
     position.coords.latitude;
 
+
   const lon =
     position.coords.longitude;
+
 
   const accuracy =
     Math.round(
@@ -324,15 +461,103 @@ function updateLiveLocation(position) {
     );
 
 
-  /* STATUS */
+  /*
+    Ignore extremely inaccurate
+    GPS readings.
+  */
+
+  if (
+    accuracy > 100
+  ) {
+
+    document.getElementById(
+      "status"
+    ).innerHTML =
+
+      "🟡 GPS accuracy is low: " +
+      accuracy +
+      " m";
+
+    return;
+
+  }
+
+
+  /*
+    GPS DRIFT FILTER
+  */
+
+  if (
+    lastStableLat !== null &&
+    lastStableLon !== null
+  ) {
+
+
+    const movement =
+
+      distanceMeters(
+
+        lastStableLat,
+
+        lastStableLon,
+
+        lat,
+
+        lon
+
+      );
+
+
+    /*
+      If movement is less than
+      10 meters and GPS accuracy
+      is not excellent, ignore it.
+    */
+
+    if (
+
+      movement <
+      MIN_MOVEMENT_METERS
+
+      &&
+
+      accuracy >
+      20
+
+    ) {
+
+      return;
+
+    }
+
+  }
+
+
+  /*
+    Save stable location.
+  */
+
+  lastStableLat = lat;
+
+  lastStableLon = lon;
+
+
+
+  /* =================================
+     STATUS
+  ================================= */
+
 
   document.getElementById(
     "status"
   ).innerHTML =
 
     "🟢 LIVE GPS ACTIVE • " +
+
     "Accuracy: " +
+
     accuracy +
+
     " m";
 
 
@@ -341,20 +566,20 @@ function updateLiveLocation(position) {
      CREATE MARKER
   ================================= */
 
-  if (!liveMarker) {
+
+  if (
+    !liveMarker
+  ) {
 
 
     liveMarker =
 
       L.marker(
 
-        [lat, lon],
-
-        {
-
-          draggable: false
-
-        }
+        [
+          lat,
+          lon
+        ]
 
       )
 
@@ -378,32 +603,44 @@ function updateLiveLocation(position) {
       );
 
 
-    /* ACCURACY CIRCLE */
+    /*
+      Accuracy circle
+    */
 
     accuracyCircle =
 
       L.circle(
 
-        [lat, lon],
+        [
+          lat,
+          lon
+        ],
 
         {
 
-          radius: accuracy,
+          radius:
+            accuracy,
 
           weight: 1,
 
-          fillOpacity: 0.10
+          fillOpacity:
+            0.10
 
         }
 
       ).addTo(map);
 
 
-    /* MOVE MAP */
+    /*
+      Move camera to user.
+    */
 
     map.setView(
 
-      [lat, lon],
+      [
+        lat,
+        lon
+      ],
 
       16
 
@@ -414,36 +651,46 @@ function updateLiveLocation(position) {
   else {
 
 
-    /* MOVE MARKER */
+    /*
+      Move marker.
+    */
 
     liveMarker.setLatLng(
 
-      [lat, lon]
+      [
+        lat,
+        lon
+      ]
 
     );
 
 
-    /* MOVE ACCURACY */
+    /*
+      Move accuracy circle.
+    */
 
     accuracyCircle.setLatLng(
 
-      [lat, lon]
+      [
+        lat,
+        lon
+      ]
 
     );
 
 
     accuracyCircle.setRadius(
-
       accuracy
-
     );
 
   }
 
 
+
   /* =================================
-     SHOW COORDINATES
+     INFORMATION
   ================================= */
+
 
   document.getElementById(
     "result"
@@ -452,24 +699,31 @@ function updateLiveLocation(position) {
     "📍 Your live location<br>" +
 
     "Latitude: <b>" +
+
     lat.toFixed(6) +
+
     "</b><br>" +
 
     "Longitude: <b>" +
+
     lon.toFixed(6) +
+
     "</b><br>" +
 
     "GPS accuracy: <b>" +
+
     accuracy +
+
     " m</b>";
 
 }
 
 
 
-/* =====================================
+/* =========================================
    GPS ERROR
-===================================== */
+========================================= */
+
 
 function gpsError(error) {
 
@@ -478,22 +732,29 @@ function gpsError(error) {
     "❌ Unable to get your location.";
 
 
-  if (error.code === 1) {
+  if (
+    error.code === 1
+  ) {
 
     message =
-      "❌ Location permission was denied. " +
-      "Please allow location access.";
+      "❌ Location permission was denied.";
 
   }
 
-  else if (error.code === 2) {
+
+  else if (
+    error.code === 2
+  ) {
 
     message =
       "❌ Your location is unavailable.";
 
   }
 
-  else if (error.code === 3) {
+
+  else if (
+    error.code === 3
+  ) {
 
     message =
       "❌ GPS request timed out.";
@@ -503,20 +764,24 @@ function gpsError(error) {
 
   document.getElementById(
     "status"
-  ).innerHTML = message;
+  ).innerHTML =
+    message;
 
 }
 
 
 
-/* =====================================
-   STOP GPS
-===================================== */
+/* =========================================
+   STOP LIVE GPS
+========================================= */
+
 
 function stopLiveLocation() {
 
 
-  if (watchID !== null) {
+  if (
+    watchID !== null
+  ) {
 
     navigator.geolocation.clearWatch(
       watchID
@@ -530,17 +795,21 @@ function stopLiveLocation() {
   document.getElementById(
     "status"
   ).innerHTML =
+
     "🔴 Live GPS stopped.";
 
 }
 
 
 
-/* =====================================
+/* =========================================
    FIND PLACE
-===================================== */
+========================================= */
 
-async function findPlace(place) {
+
+async function findPlace(
+  place
+) {
 
 
   const url =
@@ -552,8 +821,10 @@ async function findPlace(place) {
     "&q=" +
 
     encodeURIComponent(
+
       place +
       ", Taraba, Nigeria"
+
     ) +
 
     "&limit=1";
@@ -567,7 +838,9 @@ async function findPlace(place) {
     await response.json();
 
 
-  if (!data.length) {
+  if (
+    !data.length
+  ) {
 
     return null;
 
@@ -577,10 +850,14 @@ async function findPlace(place) {
   return {
 
     lat:
-      Number(data[0].lat),
+      Number(
+        data[0].lat
+      ),
 
     lon:
-      Number(data[0].lon),
+      Number(
+        data[0].lon
+      ),
 
     name:
       data[0].display_name
@@ -591,9 +868,10 @@ async function findPlace(place) {
 
 
 
-/* =====================================
-   DRAW ROUTE
-===================================== */
+/* =========================================
+   DRAW ROAD ROUTE
+========================================= */
+
 
 async function drawRoute(
 
@@ -611,13 +889,17 @@ async function drawRoute(
     "https://router.project-osrm.org/route/v1/driving/" +
 
     fromLon +
+
     "," +
+
     fromLat +
 
     ";" +
 
     toLon +
+
     "," +
+
     toLat +
 
     "?overview=full&geometries=geojson";
@@ -638,6 +920,7 @@ async function drawRoute(
     document.getElementById(
       "result"
     ).innerHTML =
+
       "❌ No road route found.";
 
     return;
@@ -651,7 +934,9 @@ async function drawRoute(
 
   /* REMOVE OLD ROUTE */
 
-  if (routeLine) {
+  if (
+    routeLine
+  ) {
 
     map.removeLayer(
       routeLine
@@ -660,7 +945,7 @@ async function drawRoute(
   }
 
 
-  /* DRAW ROUTE */
+  /* DRAW */
 
   routeLine =
 
@@ -686,6 +971,7 @@ async function drawRoute(
   /* DISTANCE */
 
   const km =
+
     (
       route.distance /
       1000
@@ -695,16 +981,21 @@ async function drawRoute(
   /* TIME */
 
   const minutes =
+
     Math.round(
+
       route.duration /
       60
+
     );
 
 
   let time;
 
 
-  if (minutes >= 60) {
+  if (
+    minutes >= 60
+  ) {
 
     time =
 
@@ -738,13 +1029,16 @@ async function drawRoute(
     "🛣️ Route ready<br>" +
 
     "📏 Distance: <b>" +
+
     km +
+
     " km</b><br>" +
 
     "⏱️ Estimated time: <b>" +
-    time +
-    "</b>";
 
+    time +
+
+    "</b>";
 
 
   map.fitBounds(
@@ -753,7 +1047,8 @@ async function drawRoute(
 
     {
 
-      padding: [40, 40]
+      padding:
+        [40, 40]
 
     }
 
@@ -763,20 +1058,23 @@ async function drawRoute(
 
 
 
-/* =====================================
+/* =========================================
    CALCULATE ROUTE
-===================================== */
+========================================= */
+
 
 async function calculateRoute() {
 
 
   const fromText =
+
     document.getElementById(
       "from"
     ).value.trim();
 
 
   const toText =
+
     document.getElementById(
       "to"
     ).value.trim();
@@ -801,6 +1099,7 @@ async function calculateRoute() {
   document.getElementById(
     "result"
   ).innerHTML =
+
     "🔎 Finding locations...";
 
 
@@ -808,12 +1107,14 @@ async function calculateRoute() {
 
 
     const from =
+
       await findPlace(
         fromText
       );
 
 
     const to =
+
       await findPlace(
         toText
       );
@@ -824,6 +1125,7 @@ async function calculateRoute() {
       document.getElementById(
         "result"
       ).innerHTML =
+
         "❌ From location not found.";
 
       return;
@@ -836,6 +1138,7 @@ async function calculateRoute() {
       document.getElementById(
         "result"
       ).innerHTML =
+
         "❌ To location not found.";
 
       return;
@@ -845,7 +1148,9 @@ async function calculateRoute() {
 
     /* REMOVE OLD MARKERS */
 
-    if (fromMarker) {
+    if (
+      fromMarker
+    ) {
 
       map.removeLayer(
         fromMarker
@@ -854,7 +1159,9 @@ async function calculateRoute() {
     }
 
 
-    if (toMarker) {
+    if (
+      toMarker
+    ) {
 
       map.removeLayer(
         toMarker
@@ -863,7 +1170,7 @@ async function calculateRoute() {
     }
 
 
-    /* FROM */
+    /* FROM MARKER */
 
     fromMarker =
 
@@ -876,7 +1183,8 @@ async function calculateRoute() {
 
         {
 
-          draggable: true
+          draggable:
+            true
 
         }
 
@@ -890,16 +1198,21 @@ async function calculateRoute() {
 
         {
 
-          permanent: true,
+          permanent:
+            true,
 
-          direction: "top"
+          direction:
+            "top",
+
+          className:
+            "from-label"
 
         }
 
       );
 
 
-    /* TO */
+    /* TO MARKER */
 
     toMarker =
 
@@ -912,7 +1225,8 @@ async function calculateRoute() {
 
         {
 
-          draggable: true
+          draggable:
+            true
 
         }
 
@@ -926,9 +1240,14 @@ async function calculateRoute() {
 
         {
 
-          permanent: true,
+          permanent:
+            true,
 
-          direction: "top"
+          direction:
+            "top",
+
+          className:
+            "to-label"
 
         }
 
@@ -952,11 +1271,14 @@ async function calculateRoute() {
 
   catch(error) {
 
-    console.error(error);
+    console.error(
+      error
+    );
 
     document.getElementById(
       "result"
     ).innerHTML =
+
       "❌ Internet or map service error.";
 
   }
@@ -967,4 +1289,5 @@ async function calculateRoute() {
 </script>
 
 </body>
-</html>
+
+  </html>
