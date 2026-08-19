@@ -1,1293 +1,1048 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 
-  <meta charset="UTF-8">
+<title>Taraba Live Map</title>
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
-  <title>Taraba Live Map</title>
+<style>
+*{box-sizing:border-box}
 
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  >
+html,body{
+  margin:0;
+  padding:0;
+  height:100%;
+  font-family:Arial,sans-serif;
+}
 
-  <style>
+body{
+  background:#f4f6f5;
+}
 
-    * {
-      box-sizing: border-box;
-    }
+header{
+  background:#087f5b;
+  color:white;
+  text-align:center;
+  padding:14px 10px;
+}
 
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-    }
+header h1{
+  margin:0;
+  font-size:22px;
+}
 
-    header {
-      background: #087f5b;
-      color: white;
-      text-align: center;
-      padding: 13px;
-    }
+header p{
+  margin:5px 0 0;
+  font-size:13px;
+}
 
-    header h1 {
-      margin: 0;
-      font-size: 21px;
-    }
+.panel{
+  background:white;
+  padding:10px;
+  position:relative;
+  z-index:1000;
+  box-shadow:0 2px 8px rgba(0,0,0,.2);
+}
 
-    header p {
-      margin: 4px 0 0;
-      font-size: 13px;
-    }
+label{
+  display:block;
+  font-size:13px;
+  font-weight:bold;
+  margin:3px 0;
+}
 
-    .panel {
-      background: white;
-      padding: 10px;
-      position: relative;
-      z-index: 1000;
-      box-shadow: 0 2px 8px rgba(0,0,0,.2);
-    }
+input,select{
+  width:100%;
+  padding:12px;
+  margin-bottom:7px;
+  border:1px solid #ccc;
+  border-radius:8px;
+  font-size:16px;
+  background:white;
+}
 
-    input {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 7px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 16px;
-    }
+button{
+  width:100%;
+  padding:12px;
+  margin-bottom:7px;
+  border:0;
+  border-radius:8px;
+  background:#087f5b;
+  color:white;
+  font-size:15px;
+  font-weight:bold;
+}
 
-    button {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 6px;
-      border: none;
-      border-radius: 8px;
-      background: #087f5b;
-      color: white;
-      font-size: 15px;
-      font-weight: bold;
-    }
+.blue{
+  background:#1565c0;
+}
 
-    .stop {
-      background: #d62828;
-    }
+.red{
+  background:#d62828;
+}
 
-    .location {
-      background: #1565c0;
-    }
+#status{
+  padding:6px 0;
+  font-size:13px;
+  font-weight:bold;
+}
 
-    #status {
-      font-size: 13px;
-      padding: 5px 0;
-    }
+#result{
+  padding:5px 0;
+  font-size:14px;
+  line-height:1.5;
+}
 
-    #result {
-      font-size: 14px;
-      line-height: 1.5;
-    }
+#map{
+  width:100%;
+  height:calc(100vh - 430px);
+  min-height:420px;
+}
 
-    #map {
-      width: 100%;
-      height: calc(100vh - 290px);
-    }
+.live-label{
+  background:#1565c0;
+  color:white;
+  border:0;
+  border-radius:6px;
+  padding:5px 8px;
+  font-weight:bold;
+}
 
-    .live-label {
-      background: #1565c0;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 5px 8px;
-      font-weight: bold;
-    }
+.from-label{
+  background:#087f5b;
+  color:white;
+  border:0;
+  border-radius:6px;
+  padding:5px 8px;
+  font-weight:bold;
+}
 
-    .from-label {
-      background: #087f5b;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 5px 8px;
-      font-weight: bold;
-    }
-
-    .to-label {
-      background: #d62828;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 5px 8px;
-      font-weight: bold;
-    }
-
-  </style>
-
+.to-label{
+  background:#d62828;
+  color:white;
+  border:0;
+  border-radius:6px;
+  padding:5px 8px;
+  font-weight:bold;
+}
+</style>
 </head>
-
 
 <body>
 
-
 <header>
-
-  <h1>📍 Taraba Live Map</h1>
-
-  <p>
-    Live GPS navigation
-  </p>
-
+<h1>📍 Taraba Live Map</h1>
+<p>Taraba State • LGA • Ward • Area • Live GPS</p>
 </header>
-
 
 <div class="panel">
 
+<label>🏛️ Taraba LGA</label>
 
-  <input
-    id="from"
-    type="text"
-    placeholder="📍 From — e.g. Gassol"
-  >
+<select id="lga" onchange="selectLGA()">
+<option value="">Select LGA</option>
+</select>
 
+<label>🏘️ Ward</label>
 
-  <input
-    id="to"
-    type="text"
-    placeholder="📍 To — e.g. Jalingo"
-  >
+<select id="ward" onchange="selectWard()" disabled>
+<option value="">Select Ward</option>
+</select>
 
+<label>📍 From</label>
 
-  <button onclick="calculateRoute()">
-    🛣️ SHOW ROUTE
-  </button>
+<input
+id="from"
+type="text"
+placeholder="Example: Gassol">
 
+<label>📍 To</label>
 
-  <button
-    class="location"
-    onclick="startLiveLocation()"
-  >
-    📍 START LIVE LOCATION
-  </button>
+<input
+id="to"
+type="text"
+placeholder="Example: Jalingo">
 
+<button onclick="calculateRoute()">
+🛣️ SHOW ROUTE
+</button>
 
-  <button
-    class="stop"
-    onclick="stopLiveLocation()"
-  >
-    ⛔ STOP LIVE LOCATION
-  </button>
+<button class="blue" onclick="startLiveLocation()">
+📍 START LIVE LOCATION
+</button>
 
+<button class="red" onclick="stopLiveLocation()">
+⛔ STOP LIVE LOCATION
+</button>
 
-  <div id="status">
+<div id="status">
+GPS is not active.
+</div>
 
-    GPS is not active.
-
-  </div>
-
-
-  <div id="result">
-
-    Enter a destination or start live location.
-
-  </div>
-
+<div id="result">
+Select an LGA or Ward.
+</div>
 
 </div>
 
-
 <div id="map"></div>
 
-
-<script
-  src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
-</script>
-
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
+
+/* =========================================
+   TARABA DATA
+========================================= */
+
+const taraba = {
+
+"Ardo-Kola":[
+["Jalingo",8.88,11.37],
+["Sunkani",8.76,11.32],
+["Lamido Borkono",8.80,11.30],
+["Tau",8.83,11.42]
+],
+
+"Bali":[
+["Bali",8.01,9.76],
+["Gang Dole",7.95,9.82],
+["Maihula",8.08,9.68],
+["Kentu",7.90,9.75]
+],
+
+"Donga":[
+["Donga",7.72,10.05],
+["Asibiti",7.66,10.02],
+["Fada",7.78,10.12],
+["Gindin Dorowa",7.70,10.10]
+],
+
+"Gashaka":[
+["Serti",7.50,11.18],
+["Gashaka",7.42,11.22],
+["Garin Jatau",7.55,11.10],
+["Mayo Selbe",7.38,11.25]
+],
+
+"Gassol":[
+["Mutum Biyu",8.63,10.77],
+["Gassol",8.53,10.58],
+["Wukari Road",8.48,10.65],
+["Tutare",8.58,10.70]
+],
+
+"Ibi":[
+["Ibi",8.18,9.74],
+["Dampar",8.12,9.80],
+["Ruwan Kuka",8.22,9.70],
+["Sarkin Kudu",8.10,9.68]
+],
+
+"Jalingo":[
+["Jalingo",8.89,11.37],
+["Barade",8.90,11.39],
+["Sintali",8.87,11.35],
+["Nukkai",8.92,11.36]
+],
+
+"Karim Lamido":[
+["Karim Lamido",9.31,11.18],
+["Didan",9.25,11.10],
+["Jen Ardido",9.35,11.25],
+["Mayo Ranewo",9.22,11.20]
+],
+
+"Kurmi":[
+["Baissa",7.23,10.63],
+["Nyivu",7.30,10.70],
+["Abong",7.18,10.55],
+["Kabin",7.27,10.58]
+],
+
+"Lau":[
+["Lau",9.21,11.28],
+["Kunini",9.14,11.24],
+["Donada",9.25,11.35],
+["Garba Chede",9.10,11.30]
+],
+
+"Sardauna":[
+["Gembu",6.72,11.26],
+["Nguroje",6.75,11.18],
+["Maisamari",6.65,11.30],
+["Jalingo Village",6.70,11.35]
+],
+
+"Takum":[
+["Takum",7.26,9.98],
+["Chanchanji",7.18,9.92],
+["Kumbo",7.30,10.05],
+["Rogo",7.22,10.08]
+],
+
+"Ussa":[
+["Ussa",7.50,10.00],
+["Kpambo",7.45,10.05],
+["Fikyu",7.55,9.95],
+["Jalingo Ussa",7.48,10.08]
+],
+
+"Wukari":[
+["Wukari",7.85,9.78],
+["Puje",7.80,9.82],
+["Hospital Area",7.88,9.75],
+["Avyi",7.78,9.72]
+],
+
+"Yorro":[
+["Kintinu",8.87,11.56],
+["Nyaja",8.80,11.50],
+["Pantisawa",8.92,11.62],
+["Mayo Ndaga",8.84,11.48]
+],
+
+"Zing":[
+["Zing",8.99,11.75],
+["Yakoko",8.94,11.70],
+["Zing Town",9.02,11.78],
+["Lamma",8.96,11.82]
+]
+
+};
 
 
 /* =========================================
    MAP
 ========================================= */
 
-
-const map =
-  L.map("map")
-   .setView(
-     [8.0, 10.8],
-     8
-   );
-
-
-/* =========================================
-   OPENSTREETMAP
-========================================= */
-
+const map=L.map("map").setView(
+[8.0,10.6],
+8
+);
 
 L.tileLayer(
-
-  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-
-  {
-
-    maxZoom: 19,
-
-    attribution:
-      "&copy; OpenStreetMap contributors"
-
-  }
-
+"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+{
+maxZoom:19,
+attribution:"© OpenStreetMap contributors"
+}
 ).addTo(map);
-
 
 
 /* =========================================
    VARIABLES
 ========================================= */
 
+let liveMarker=null;
+let accuracyCircle=null;
+let watchID=null;
 
-let liveMarker = null;
+let fromMarker=null;
+let toMarker=null;
+let routeLine=null;
+let wardMarker=null;
 
-let accuracyCircle = null;
-
-let watchID = null;
-
-let routeLine = null;
-
-let fromMarker = null;
-
-let toMarker = null;
+let lastGoodLat=null;
+let lastGoodLon=null;
 
 
-/* GPS STABILITY */
+/* =========================================
+   LOAD LGAs
+========================================= */
 
-let lastStableLat = null;
+const lgaSelect=document.getElementById("lga");
 
-let lastStableLon = null;
+Object.keys(taraba).forEach(
+lga=>{
+
+const option=document.createElement("option");
+
+option.value=lga;
+option.textContent=lga;
+
+lgaSelect.appendChild(option);
+
+}
+);
+
+
+/* =========================================
+   SELECT LGA
+========================================= */
+
+function selectLGA(){
+
+const lga=lgaSelect.value;
+
+const wardSelect=document.getElementById("ward");
+
+wardSelect.innerHTML=
+'<option value="">Select Ward</option>';
+
+wardSelect.disabled=true;
+
+if(!lga){
+
+return;
+
+}
+
+taraba[lga].forEach(
+(ward,index)=>{
+
+const option=document.createElement("option");
+
+option.value=index;
+option.textContent=ward[0];
+
+wardSelect.appendChild(option);
+
+}
+);
+
+wardSelect.disabled=false;
+
+document.getElementById("result").innerHTML=
+"🏛️ Selected LGA: <b>"+
+lga+
+"</b><br>Now select a ward.";
+
+}
+
+
+/* =========================================
+   SELECT WARD
+========================================= */
+
+function selectWard(){
+
+const lga=lgaSelect.value;
+const index=document.getElementById("ward").value;
+
+if(!lga || index==="") return;
+
+const ward=taraba[lga][index];
+
+const name=ward[0];
+const lat=ward[1];
+const lon=ward[2];
+
+
+if(wardMarker){
+
+map.removeLayer(wardMarker);
+
+}
+
+
+wardMarker=L.marker(
+[lat,lon]
+)
+.addTo(map)
+.bindTooltip(
+name,
+{
+permanent:true,
+direction:"top"
+}
+);
+
+map.setView(
+[lat,lon],
+15
+);
+
+
+document.getElementById("result").innerHTML=
+"🏛️ LGA: <b>"+
+lga+
+"</b><br>"+
+"🏘️ Ward: <b>"+
+name+
+"</b><br>"+
+"📍 Location shown on map.";
+
+
+/* PUT WARD INTO TO BOX */
+
+document.getElementById("to").value=
+name+", "+lga+", Taraba";
+
+}
+
+
+/* =========================================
+   GPS
+========================================= */
+
+function startLiveLocation(){
+
+if(!navigator.geolocation){
+
+document.getElementById("status").innerHTML=
+"❌ GPS is not supported.";
+
+return;
+
+}
+
+document.getElementById("status").innerHTML=
+"🔎 Getting your live location...";
+
+
+if(watchID!==null){
+
+navigator.geolocation.clearWatch(watchID);
+
+}
+
+
+watchID=navigator.geolocation.watchPosition(
+updateGPS,
+gpsError,
+{
+enableHighAccuracy:true,
+maximumAge:3000,
+timeout:20000
+}
+);
+
+
+/* NOTE:
+   GPS accuracy is NOT displayed.
+*/
+
+}
+
+
+/* =========================================
+   GPS UPDATE
+========================================= */
+
+function updateGPS(position){
+
+const lat=position.coords.latitude;
+const lon=position.coords.longitude;
+
+const accuracy=position.coords.accuracy;
 
 
 /*
-   Minimum movement required before
-   updating the marker.
+   Ignore very bad GPS readings.
 */
 
-const MIN_MOVEMENT_METERS = 10;
+if(accuracy>100){
 
+document.getElementById("status").innerHTML=
+"🟡 LIVE LOCATION • GPS signal weak";
 
-
-/* =========================================
-   DISTANCE BETWEEN GPS POINTS
-========================================= */
-
-
-function distanceMeters(
-
-  lat1,
-  lon1,
-  lat2,
-  lon2
-
-) {
-
-
-  const R =
-    6371000;
-
-
-  const p1 =
-    lat1 *
-    Math.PI /
-    180;
-
-
-  const p2 =
-    lat2 *
-    Math.PI /
-    180;
-
-
-  const dp =
-    (
-      lat2 -
-      lat1
-    ) *
-    Math.PI /
-    180;
-
-
-  const dl =
-    (
-      lon2 -
-      lon1
-    ) *
-    Math.PI /
-    180;
-
-
-  const a =
-
-    Math.sin(dp / 2) *
-    Math.sin(dp / 2)
-
-    +
-
-    Math.cos(p1) *
-    Math.cos(p2) *
-    Math.sin(dl / 2) *
-    Math.sin(dl / 2);
-
-
-  const c =
-
-    2 *
-
-    Math.atan2(
-
-      Math.sqrt(a),
-
-      Math.sqrt(
-        1 - a
-      )
-
-    );
-
-
-  return R * c;
+return;
 
 }
 
 
+/*
+   Ignore tiny GPS jumps.
+*/
 
-/* =========================================
-   START LIVE LOCATION
-========================================= */
+if(lastGoodLat!==null){
 
+const movement=
+calculateDistance(
+lastGoodLat,
+lastGoodLon,
+lat,
+lon
+);
 
-function startLiveLocation() {
+if(
+movement<8 &&
+accuracy>25
+){
 
+return;
 
-  if (
-    !navigator.geolocation
-  ) {
-
-    document.getElementById(
-      "status"
-    ).innerHTML =
-
-      "❌ GPS is not supported.";
-
-    return;
-
-  }
-
-
-  document.getElementById(
-    "status"
-  ).innerHTML =
-
-    "🔎 Getting your location...";
-
-
-  /* RESET */
-
-  lastStableLat = null;
-
-  lastStableLon = null;
-
-
-  /* STOP OLD WATCH */
-
-  if (
-    watchID !== null
-  ) {
-
-    navigator.geolocation.clearWatch(
-      watchID
-    );
-
-  }
-
-
-  /* START GPS */
-
-  watchID =
-
-    navigator.geolocation.watchPosition(
-
-      updateLiveLocation,
-
-      gpsError,
-
-      {
-
-        enableHighAccuracy: true,
-
-        maximumAge: 1000,
-
-        timeout: 20000
-
-      }
-
-    );
+}
 
 }
 
 
-
-/* =========================================
-   UPDATE LIVE LOCATION
-========================================= */
-
-
-function updateLiveLocation(
-  position
-) {
-
-
-  const lat =
-    position.coords.latitude;
-
-
-  const lon =
-    position.coords.longitude;
-
-
-  const accuracy =
-    Math.round(
-      position.coords.accuracy
-    );
-
-
-  /*
-    Ignore extremely inaccurate
-    GPS readings.
-  */
-
-  if (
-    accuracy > 100
-  ) {
-
-    document.getElementById(
-      "status"
-    ).innerHTML =
-
-      "🟡 GPS accuracy is low: " +
-      accuracy +
-      " m";
-
-    return;
-
-  }
-
-
-  /*
-    GPS DRIFT FILTER
-  */
-
-  if (
-    lastStableLat !== null &&
-    lastStableLon !== null
-  ) {
-
-
-    const movement =
-
-      distanceMeters(
-
-        lastStableLat,
-
-        lastStableLon,
-
-        lat,
-
-        lon
-
-      );
-
-
-    /*
-      If movement is less than
-      10 meters and GPS accuracy
-      is not excellent, ignore it.
-    */
-
-    if (
-
-      movement <
-      MIN_MOVEMENT_METERS
-
-      &&
-
-      accuracy >
-      20
-
-    ) {
-
-      return;
-
-    }
-
-  }
-
-
-  /*
-    Save stable location.
-  */
-
-  lastStableLat = lat;
-
-  lastStableLon = lon;
-
-
-
-  /* =================================
-     STATUS
-  ================================= */
-
-
-  document.getElementById(
-    "status"
-  ).innerHTML =
-
-    "🟢 LIVE GPS ACTIVE • " +
-
-    "Accuracy: " +
-
-    accuracy +
-
-    " m";
-
-
-
-  /* =================================
-     CREATE MARKER
-  ================================= */
-
-
-  if (
-    !liveMarker
-  ) {
-
-
-    liveMarker =
-
-      L.marker(
-
-        [
-          lat,
-          lon
-        ]
-
-      )
-
-      .addTo(map)
-
-      .bindTooltip(
-
-        "📍 YOU ARE HERE",
-
-        {
-
-          permanent: true,
-
-          direction: "top",
-
-          className:
-            "live-label"
-
-        }
-
-      );
-
-
-    /*
-      Accuracy circle
-    */
-
-    accuracyCircle =
-
-      L.circle(
-
-        [
-          lat,
-          lon
-        ],
-
-        {
-
-          radius:
-            accuracy,
-
-          weight: 1,
-
-          fillOpacity:
-            0.10
-
-        }
-
-      ).addTo(map);
-
-
-    /*
-      Move camera to user.
-    */
-
-    map.setView(
-
-      [
-        lat,
-        lon
-      ],
-
-      16
-
-    );
-
-  }
-
-  else {
-
-
-    /*
-      Move marker.
-    */
-
-    liveMarker.setLatLng(
-
-      [
-        lat,
-        lon
-      ]
-
-    );
-
-
-    /*
-      Move accuracy circle.
-    */
-
-    accuracyCircle.setLatLng(
-
-      [
-        lat,
-        lon
-      ]
-
-    );
-
-
-    accuracyCircle.setRadius(
-      accuracy
-    );
-
-  }
-
-
-
-  /* =================================
-     INFORMATION
-  ================================= */
-
-
-  document.getElementById(
-    "result"
-  ).innerHTML =
-
-    "📍 Your live location<br>" +
-
-    "Latitude: <b>" +
-
-    lat.toFixed(6) +
-
-    "</b><br>" +
-
-    "Longitude: <b>" +
-
-    lon.toFixed(6) +
-
-    "</b><br>" +
-
-    "GPS accuracy: <b>" +
-
-    accuracy +
-
-    " m</b>";
+lastGoodLat=lat;
+lastGoodLon=lon;
+
+
+document.getElementById("status").innerHTML=
+"🟢 LIVE LOCATION ACTIVE";
+
+
+if(!liveMarker){
+
+liveMarker=L.marker(
+[lat,lon]
+)
+.addTo(map)
+.bindTooltip(
+"📍 YOU ARE HERE",
+{
+permanent:true,
+direction:"top",
+className:"live-label"
+}
+);
+
+
+accuracyCircle=L.circle(
+[lat,lon],
+{
+radius:Math.min(accuracy,100),
+weight:1,
+fillOpacity:.08
+}
+).addTo(map);
+
+
+map.setView(
+[lat,lon],
+16
+);
+
+}
+else{
+
+liveMarker.setLatLng(
+[lat,lon]
+);
+
+accuracyCircle.setLatLng(
+[lat,lon]
+);
+
+accuracyCircle.setRadius(
+Math.min(accuracy,100)
+);
 
 }
 
+
+document.getElementById("result").innerHTML=
+"📍 <b>Your live location is active.</b>";
+
+}
+
+
+/* =========================================
+   DISTANCE
+========================================= */
+
+function calculateDistance(
+lat1,
+lon1,
+lat2,
+lon2
+){
+
+const R=6371000;
+
+const p1=lat1*Math.PI/180;
+const p2=lat2*Math.PI/180;
+
+const dp=
+(lat2-lat1)*Math.PI/180;
+
+const dl=
+(lon2-lon1)*Math.PI/180;
+
+const a=
+Math.sin(dp/2)**2+
+Math.cos(p1)*
+Math.cos(p2)*
+Math.sin(dl/2)**2;
+
+return R*
+2*
+Math.atan2(
+Math.sqrt(a),
+Math.sqrt(1-a)
+);
+
+}
 
 
 /* =========================================
    GPS ERROR
 ========================================= */
 
+function gpsError(error){
 
-function gpsError(error) {
+if(error.code===1){
 
+document.getElementById("status").innerHTML=
+"❌ Location permission denied.";
 
-  let message =
-    "❌ Unable to get your location.";
+}
+else if(error.code===2){
 
+document.getElementById("status").innerHTML=
+"❌ Location unavailable.";
 
-  if (
-    error.code === 1
-  ) {
+}
+else if(error.code===3){
 
-    message =
-      "❌ Location permission was denied.";
+document.getElementById("status").innerHTML=
+"❌ GPS timed out.";
 
-  }
+}
+else{
 
+document.getElementById("status").innerHTML=
+"❌ GPS error.";
 
-  else if (
-    error.code === 2
-  ) {
-
-    message =
-      "❌ Your location is unavailable.";
-
-  }
-
-
-  else if (
-    error.code === 3
-  ) {
-
-    message =
-      "❌ GPS request timed out.";
-
-  }
-
-
-  document.getElementById(
-    "status"
-  ).innerHTML =
-    message;
+}
 
 }
 
 
-
 /* =========================================
-   STOP LIVE GPS
+   STOP GPS
 ========================================= */
 
+function stopLiveLocation(){
 
-function stopLiveLocation() {
+if(watchID!==null){
 
+navigator.geolocation.clearWatch(
+watchID
+);
 
-  if (
-    watchID !== null
-  ) {
+watchID=null;
 
-    navigator.geolocation.clearWatch(
-      watchID
-    );
+}
 
-    watchID = null;
-
-  }
-
-
-  document.getElementById(
-    "status"
-  ).innerHTML =
-
-    "🔴 Live GPS stopped.";
+document.getElementById("status").innerHTML=
+"🔴 Live GPS stopped.";
 
 }
 
 
-
 /* =========================================
-   FIND PLACE
+   SEARCH PLACE
 ========================================= */
 
+async function findPlace(place){
 
-async function findPlace(
-  place
-) {
+const url=
+"https://nominatim.openstreetmap.org/search"+
+"?format=jsonv2"+
+"&q="+
+encodeURIComponent(
+place+", Taraba, Nigeria"
+)+
+"&limit=1";
 
+const response=await fetch(url);
 
-  const url =
+if(!response.ok){
 
-    "https://nominatim.openstreetmap.org/search" +
+throw new Error("Search failed");
 
-    "?format=json" +
+}
 
-    "&q=" +
+const data=await response.json();
 
-    encodeURIComponent(
+if(!data.length){
 
-      place +
-      ", Taraba, Nigeria"
+return null;
 
-    ) +
+}
 
-    "&limit=1";
+return{
 
+lat:Number(data[0].lat),
+lon:Number(data[0].lon),
+name:data[0].display_name
 
-  const response =
-    await fetch(url);
-
-
-  const data =
-    await response.json();
-
-
-  if (
-    !data.length
-  ) {
-
-    return null;
-
-  }
-
-
-  return {
-
-    lat:
-      Number(
-        data[0].lat
-      ),
-
-    lon:
-      Number(
-        data[0].lon
-      ),
-
-    name:
-      data[0].display_name
-
-  };
+};
 
 }
 
 
-
 /* =========================================
-   DRAW ROAD ROUTE
+   ROUTE
 ========================================= */
-
 
 async function drawRoute(
+fromLat,
+fromLon,
+toLat,
+toLon
+){
 
-  fromLat,
-  fromLon,
+const url=
+"https://router.project-osrm.org/route/v1/driving/"+
+fromLon+
+","+
+fromLat+
+";"+
+toLon+
+","+
+toLat+
+"?overview=full&geometries=geojson";
 
-  toLat,
-  toLon
 
-) {
+const response=await fetch(url);
 
+const data=await response.json();
 
-  const url =
 
-    "https://router.project-osrm.org/route/v1/driving/" +
+if(data.code!=="Ok"){
 
-    fromLon +
+document.getElementById("result").innerHTML=
+"❌ Road route not found.";
 
-    "," +
-
-    fromLat +
-
-    ";" +
-
-    toLon +
-
-    "," +
-
-    toLat +
-
-    "?overview=full&geometries=geojson";
-
-
-  const response =
-    await fetch(url);
-
-
-  const data =
-    await response.json();
-
-
-  if (
-    data.code !== "Ok"
-  ) {
-
-    document.getElementById(
-      "result"
-    ).innerHTML =
-
-      "❌ No road route found.";
-
-    return;
-
-  }
-
-
-  const route =
-    data.routes[0];
-
-
-  /* REMOVE OLD ROUTE */
-
-  if (
-    routeLine
-  ) {
-
-    map.removeLayer(
-      routeLine
-    );
-
-  }
-
-
-  /* DRAW */
-
-  routeLine =
-
-    L.geoJSON(
-
-      route.geometry,
-
-      {
-
-        style: {
-
-          weight: 6,
-
-          opacity: 0.85
-
-        }
-
-      }
-
-    ).addTo(map);
-
-
-  /* DISTANCE */
-
-  const km =
-
-    (
-      route.distance /
-      1000
-    ).toFixed(1);
-
-
-  /* TIME */
-
-  const minutes =
-
-    Math.round(
-
-      route.duration /
-      60
-
-    );
-
-
-  let time;
-
-
-  if (
-    minutes >= 60
-  ) {
-
-    time =
-
-      Math.floor(
-        minutes / 60
-      ) +
-
-      " hr " +
-
-      (
-        minutes % 60
-      ) +
-
-      " min";
-
-  }
-
-  else {
-
-    time =
-      minutes +
-      " min";
-
-  }
-
-
-  document.getElementById(
-    "result"
-  ).innerHTML =
-
-    "🛣️ Route ready<br>" +
-
-    "📏 Distance: <b>" +
-
-    km +
-
-    " km</b><br>" +
-
-    "⏱️ Estimated time: <b>" +
-
-    time +
-
-    "</b>";
-
-
-  map.fitBounds(
-
-    routeLine.getBounds(),
-
-    {
-
-      padding:
-        [40, 40]
-
-    }
-
-  );
+return;
 
 }
 
+
+const route=data.routes[0];
+
+
+if(routeLine){
+
+map.removeLayer(routeLine);
+
+}
+
+
+routeLine=L.geoJSON(
+route.geometry,
+{
+style:{
+weight:6,
+opacity:.85
+}
+}
+).addTo(map);
+
+
+const km=
+(route.distance/1000).toFixed(1);
+
+const minutes=
+Math.round(route.duration/60);
+
+let time;
+
+if(minutes>=60){
+
+time=
+Math.floor(minutes/60)+
+" hr "+
+(minutes%60)+
+" min";
+
+}
+else{
+
+time=minutes+" min";
+
+}
+
+
+document.getElementById("result").innerHTML=
+"🛣️ <b>Route ready</b><br>"+
+"📏 Distance: <b>"+
+km+
+" km</b><br>"+
+"⏱️ Estimated time: <b>"+
+time+
+"</b>";
+
+
+map.fitBounds(
+routeLine.getBounds(),
+{
+padding:[30,30]
+}
+);
+
+}
 
 
 /* =========================================
    CALCULATE ROUTE
 ========================================= */
 
+async function calculateRoute(){
 
-async function calculateRoute() {
+const fromText=
+document.getElementById("from").value.trim();
 
+const toText=
+document.getElementById("to").value.trim();
 
-  const fromText =
 
-    document.getElementById(
-      "from"
-    ).value.trim();
+if(!fromText || !toText){
 
+document.getElementById("result").innerHTML=
+"⚠️ Enter both From and To.";
 
-  const toText =
-
-    document.getElementById(
-      "to"
-    ).value.trim();
-
-
-  if (
-    !fromText ||
-    !toText
-  ) {
-
-    document.getElementById(
-      "result"
-    ).innerHTML =
-
-      "⚠️ Enter both From and To.";
-
-    return;
-
-  }
-
-
-  document.getElementById(
-    "result"
-  ).innerHTML =
-
-    "🔎 Finding locations...";
-
-
-  try {
-
-
-    const from =
-
-      await findPlace(
-        fromText
-      );
-
-
-    const to =
-
-      await findPlace(
-        toText
-      );
-
-
-    if (!from) {
-
-      document.getElementById(
-        "result"
-      ).innerHTML =
-
-        "❌ From location not found.";
-
-      return;
-
-    }
-
-
-    if (!to) {
-
-      document.getElementById(
-        "result"
-      ).innerHTML =
-
-        "❌ To location not found.";
-
-      return;
-
-    }
-
-
-    /* REMOVE OLD MARKERS */
-
-    if (
-      fromMarker
-    ) {
-
-      map.removeLayer(
-        fromMarker
-      );
-
-    }
-
-
-    if (
-      toMarker
-    ) {
-
-      map.removeLayer(
-        toMarker
-      );
-
-    }
-
-
-    /* FROM MARKER */
-
-    fromMarker =
-
-      L.marker(
-
-        [
-          from.lat,
-          from.lon
-        ],
-
-        {
-
-          draggable:
-            true
-
-        }
-
-      )
-
-      .addTo(map)
-
-      .bindTooltip(
-
-        "FROM",
-
-        {
-
-          permanent:
-            true,
-
-          direction:
-            "top",
-
-          className:
-            "from-label"
-
-        }
-
-      );
-
-
-    /* TO MARKER */
-
-    toMarker =
-
-      L.marker(
-
-        [
-          to.lat,
-          to.lon
-        ],
-
-        {
-
-          draggable:
-            true
-
-        }
-
-      )
-
-      .addTo(map)
-
-      .bindTooltip(
-
-        "TO",
-
-        {
-
-          permanent:
-            true,
-
-          direction:
-            "top",
-
-          className:
-            "to-label"
-
-        }
-
-      );
-
-
-    /* DRAW ROUTE */
-
-    await drawRoute(
-
-      from.lat,
-      from.lon,
-
-      to.lat,
-      to.lon
-
-    );
-
-
-  }
-
-  catch(error) {
-
-    console.error(
-      error
-    );
-
-    document.getElementById(
-      "result"
-    ).innerHTML =
-
-      "❌ Internet or map service error.";
-
-  }
+return;
 
 }
 
 
+document.getElementById("result").innerHTML=
+"🔎 Finding From and To...";
+
+
+try{
+
+const from=
+await findPlace(fromText);
+
+const to=
+await findPlace(toText);
+
+
+if(!from){
+
+document.getElementById("result").innerHTML=
+"❌ From location not found.";
+
+return;
+
+}
+
+if(!to){
+
+document.getElementById("result").innerHTML=
+"❌ To location not found.";
+
+return;
+
+}
+
+
+if(fromMarker){
+
+map.removeLayer(fromMarker);
+
+}
+
+if(toMarker){
+
+map.removeLayer(toMarker);
+
+}
+
+
+fromMarker=L.marker(
+[from.lat,from.lon],
+{
+draggable:true
+}
+)
+.addTo(map)
+.bindTooltip(
+"FROM",
+{
+permanent:true,
+direction:"top",
+className:"from-label"
+}
+);
+
+
+toMarker=L.marker(
+[to.lat,to.lon],
+{
+draggable:true
+}
+)
+.addTo(map)
+.bindTooltip(
+"TO",
+{
+permanent:true,
+direction:"top",
+className:"to-label"
+}
+);
+
+
+await drawRoute(
+from.lat,
+from.lon,
+to.lat,
+to.lon
+);
+
+
+/*
+   If user drags FROM marker,
+   recalculate route.
+*/
+
+fromMarker.on(
+"dragend",
+async function(){
+
+const p=
+fromMarker.getLatLng();
+
+await drawRoute(
+p.lat,
+p.lng,
+toMarker.getLatLng().lat,
+toMarker.getLatLng().lng
+);
+
+}
+);
+
+
+/*
+   If user drags TO marker,
+   recalculate route.
+*/
+
+toMarker.on(
+"dragend",
+async function(){
+
+const p=
+toMarker.getLatLng();
+
+await drawRoute(
+fromMarker.getLatLng().lat,
+fromMarker.getLatLng().lng,
+p.lat,
+p.lng
+);
+
+}
+);
+
+
+}
+catch(error){
+
+console.error(error);
+
+document.getElementById("result").innerHTML=
+"❌ Internet/map service error.";
+
+}
+
+}
+
 </script>
 
 </body>
-
-  </html>
+</html>
