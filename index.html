@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+  <title>Taraba Live Map</title>
+
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  >
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    header {
+      background: #087f5b;
+      color: white;
+      text-align: center;
+      padding: 13px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 21px;
+    }
+
+    header p {
+      margin: 4px 0 0;
+      font-size: 13px;
+    }
+
+    .panel {
+      background: white;
+      padding: 10px;
+
+      position: relative;
+      z-index: 1000;
+
+      box-shadow: 0 2px 8px rgba(0,0,0,.2);
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 7px;
+
+      border: 1px solid #ccc;
+      border-radius: 8px;
+
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+
+      margin-bottom: 6px;
+
+      border: none;
+      border-radius: 8px;
+
+      background: #087f5b;
+      color: white;
+
+      font-size: 15px;
+      font-weight: bold;
+    }
+
+    .stop {
+      background: #d62828;
+    }
+
+    #status {
+      font-size: 13px;
+      padding: 5px 0;
+    }
+
+    #result {
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    #map {
+      width: 100%;
+      height: calc(100vh - 270px);
+    }
+
+    .from-label {
+      background: #087f5b;
+      color: white;
+      border: none;
+      border-radius: 6px;
+
+      padding: 5px 8px;
+      font-weight: bold;
+    }
+
+    .to-label {
+      background: #d62828;
+      color: white;
+      border: none;
+      border-radius: 6px;
+
+      padding: 5px 8px;
+      font-weight: bold;
+    }
+
+    .live-label {
+      background: #1565c0;
+      color: white;
+      border: none;
+      border-radius: 6px;
+
+      padding: 5px 8px;
+      font-weight: bold;
+    }
+
+  </style>
+</head>
+
+<body>
+
+<header>
+
+  <h1>📍 Taraba Live Map</h1>
+
+  <p>
+    Live GPS navigation
+  </p>
+
+</header>
+
+
+<div class="panel">
+
+  <input
+    id="from"
+    type="text"
+    placeholder="📍 From — e.g. Gassol"
+  >
+
+  <input
+    id="to"
+    type="text"
+    placeholder="📍 To — e.g. Jalingo"
+  >
+
+  <button onclick="calculateRoute()">
+    🛣️ SHOW ROUTE
+  </button>
+
+  <button onclick="startLiveLocation()">
+    📍 START LIVE LOCATION
+  </button>
+
+  <button
+    class="stop"
+    onclick="stopLiveLocation()"
+  >
+    ⛔ STOP LIVE LOCATION
+  </button>
+
+  <div id="status">
+    GPS is not active.
+  </div>
+
+  <div id="result">
+    Enter a destination or start live location.
+  </div>
+
+</div>
+
+
+<div id="map"></div>
+
+
+<script
+  src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+</script>
+
+
+<script>
+
+
+/* =====================================
+   MAP
+===================================== */
+
+const map =
+  L.map("map")
+   .setView(
+     [8.0, 10.8],
+     8
+   );
+
+
+/* =====================================
+   OPEN STREET MAP
+===================================== */
+
+L.tileLayer(
+
+  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+
+  {
+
+    maxZoom: 19,
+
+    attribution:
+      '&copy; OpenStreetMap contributors'
+
+  }
+
+).addTo(map);
+
+
+
+/* =====================================
+   VARIABLES
+===================================== */
+
+let liveMarker = null;
+
+let accuracyCircle = null;
+
+let watchID = null;
+
+let routeLine = null;
+
+let fromMarker = null;
+
+let toMarker = null;
+
+
+
+/* =====================================
+   START LIVE GPS
+===================================== */
+
+function startLiveLocation() {
+
+
+  if (!navigator.geolocation) {
+
+    document.getElementById(
+      "status"
+    ).innerHTML =
+      "❌ GPS is not supported by this browser.";
+
+    return;
+
+  }
+
+
+  document.getElementById(
+    "status"
+  ).innerHTML =
+    "🔎 Getting your GPS location...";
+
+
+  /* STOP PREVIOUS WATCH */
+
+  if (watchID !== null) {
+
+    navigator.geolocation.clearWatch(
+      watchID
+    );
+
+  }
+
+
+  /* START WATCH */
+
+  watchID =
+    navigator.geolocation.watchPosition(
+
+      updateLiveLocation,
+
+      gpsError,
+
+      {
+
+        enableHighAccuracy: true,
+
+        maximumAge: 2000,
+
+        timeout: 15000
+
+      }
+
+    );
+
+}
+
+
+
+/* =====================================
+   UPDATE LIVE LOCATION
+===================================== */
+
+function updateLiveLocation(position) {
+
+
+  const lat =
+    position.coords.latitude;
+
+  const lon =
+    position.coords.longitude;
+
+  const accuracy =
+    Math.round(
+      position.coords.accuracy
+    );
+
+
+  /* STATUS */
+
+  document.getElementById(
+    "status"
+  ).innerHTML =
+
+    "🟢 LIVE GPS ACTIVE • " +
+    "Accuracy: " +
+    accuracy +
+    " m";
+
+
+
+  /* =================================
+     CREATE MARKER
+  ================================= */
+
+  if (!liveMarker) {
+
+
+    liveMarker =
+
+      L.marker(
+
+        [lat, lon],
+
+        {
+
+          draggable: false
+
+        }
+
+      )
+
+      .addTo(map)
+
+      .bindTooltip(
+
+        "📍 YOU ARE HERE",
+
+        {
+
+          permanent: true,
+
+          direction: "top",
+
+          className:
+            "live-label"
+
+        }
+
+      );
+
+
+    /* ACCURACY CIRCLE */
+
+    accuracyCircle =
+
+      L.circle(
+
+        [lat, lon],
+
+        {
+
+          radius: accuracy,
+
+          weight: 1,
+
+          fillOpacity: 0.10
+
+        }
+
+      ).addTo(map);
+
+
+    /* MOVE MAP */
+
+    map.setView(
+
+      [lat, lon],
+
+      16
+
+    );
+
+  }
+
+  else {
+
+
+    /* MOVE MARKER */
+
+    liveMarker.setLatLng(
+
+      [lat, lon]
+
+    );
+
+
+    /* MOVE ACCURACY */
+
+    accuracyCircle.setLatLng(
+
+      [lat, lon]
+
+    );
+
+
+    accuracyCircle.setRadius(
+
+      accuracy
+
+    );
+
+  }
+
+
+  /* =================================
+     SHOW COORDINATES
+  ================================= */
+
+  document.getElementById(
+    "result"
+  ).innerHTML =
+
+    "📍 Your live location<br>" +
+
+    "Latitude: <b>" +
+    lat.toFixed(6) +
+    "</b><br>" +
+
+    "Longitude: <b>" +
+    lon.toFixed(6) +
+    "</b><br>" +
+
+    "GPS accuracy: <b>" +
+    accuracy +
+    " m</b>";
+
+}
+
+
+
+/* =====================================
+   GPS ERROR
+===================================== */
+
+function gpsError(error) {
+
+
+  let message =
+    "❌ Unable to get your location.";
+
+
+  if (error.code === 1) {
+
+    message =
+      "❌ Location permission was denied. " +
+      "Please allow location access.";
+
+  }
+
+  else if (error.code === 2) {
+
+    message =
+      "❌ Your location is unavailable.";
+
+  }
+
+  else if (error.code === 3) {
+
+    message =
+      "❌ GPS request timed out.";
+
+  }
+
+
+  document.getElementById(
+    "status"
+  ).innerHTML = message;
+
+}
+
+
+
+/* =====================================
+   STOP GPS
+===================================== */
+
+function stopLiveLocation() {
+
+
+  if (watchID !== null) {
+
+    navigator.geolocation.clearWatch(
+      watchID
+    );
+
+    watchID = null;
+
+  }
+
+
+  document.getElementById(
+    "status"
+  ).innerHTML =
+    "🔴 Live GPS stopped.";
+
+}
+
+
+
+/* =====================================
+   FIND PLACE
+===================================== */
+
+async function findPlace(place) {
+
+
+  const url =
+
+    "https://nominatim.openstreetmap.org/search" +
+
+    "?format=json" +
+
+    "&q=" +
+
+    encodeURIComponent(
+      place +
+      ", Taraba, Nigeria"
+    ) +
+
+    "&limit=1";
+
+
+  const response =
+    await fetch(url);
+
+
+  const data =
+    await response.json();
+
+
+  if (!data.length) {
+
+    return null;
+
+  }
+
+
+  return {
+
+    lat:
+      Number(data[0].lat),
+
+    lon:
+      Number(data[0].lon),
+
+    name:
+      data[0].display_name
+
+  };
+
+}
+
+
+
+/* =====================================
+   DRAW ROUTE
+===================================== */
+
+async function drawRoute(
+
+  fromLat,
+  fromLon,
+
+  toLat,
+  toLon
+
+) {
+
+
+  const url =
+
+    "https://router.project-osrm.org/route/v1/driving/" +
+
+    fromLon +
+    "," +
+    fromLat +
+
+    ";" +
+
+    toLon +
+    "," +
+    toLat +
+
+    "?overview=full&geometries=geojson";
+
+
+  const response =
+    await fetch(url);
+
+
+  const data =
+    await response.json();
+
+
+  if (
+    data.code !== "Ok"
+  ) {
+
+    document.getElementById(
+      "result"
+    ).innerHTML =
+      "❌ No road route found.";
+
+    return;
+
+  }
+
+
+  const route =
+    data.routes[0];
+
+
+  /* REMOVE OLD ROUTE */
+
+  if (routeLine) {
+
+    map.removeLayer(
+      routeLine
+    );
+
+  }
+
+
+  /* DRAW ROUTE */
+
+  routeLine =
+
+    L.geoJSON(
+
+      route.geometry,
+
+      {
+
+        style: {
+
+          weight: 6,
+
+          opacity: 0.85
+
+        }
+
+      }
+
+    ).addTo(map);
+
+
+  /* DISTANCE */
+
+  const km =
+    (
+      route.distance /
+      1000
+    ).toFixed(1);
+
+
+  /* TIME */
+
+  const minutes =
+    Math.round(
+      route.duration /
+      60
+    );
+
+
+  let time;
+
+
+  if (minutes >= 60) {
+
+    time =
+
+      Math.floor(
+        minutes / 60
+      ) +
+
+      " hr " +
+
+      (
+        minutes % 60
+      ) +
+
+      " min";
+
+  }
+
+  else {
+
+    time =
+      minutes +
+      " min";
+
+  }
+
+
+  document.getElementById(
+    "result"
+  ).innerHTML =
+
+    "🛣️ Route ready<br>" +
+
+    "📏 Distance: <b>" +
+    km +
+    " km</b><br>" +
+
+    "⏱️ Estimated time: <b>" +
+    time +
+    "</b>";
+
+
+
+  map.fitBounds(
+
+    routeLine.getBounds(),
+
+    {
+
+      padding: [40, 40]
+
+    }
+
+  );
+
+}
+
+
+
+/* =====================================
+   CALCULATE ROUTE
+===================================== */
+
+async function calculateRoute() {
+
+
+  const fromText =
+    document.getElementById(
+      "from"
+    ).value.trim();
+
+
+  const toText =
+    document.getElementById(
+      "to"
+    ).value.trim();
+
+
+  if (
+    !fromText ||
+    !toText
+  ) {
+
+    document.getElementById(
+      "result"
+    ).innerHTML =
+
+      "⚠️ Enter both From and To.";
+
+    return;
+
+  }
+
+
+  document.getElementById(
+    "result"
+  ).innerHTML =
+    "🔎 Finding locations...";
+
+
+  try {
+
+
+    const from =
+      await findPlace(
+        fromText
+      );
+
+
+    const to =
+      await findPlace(
+        toText
+      );
+
+
+    if (!from) {
+
+      document.getElementById(
+        "result"
+      ).innerHTML =
+        "❌ From location not found.";
+
+      return;
+
+    }
+
+
+    if (!to) {
+
+      document.getElementById(
+        "result"
+      ).innerHTML =
+        "❌ To location not found.";
+
+      return;
+
+    }
+
+
+    /* REMOVE OLD MARKERS */
+
+    if (fromMarker) {
+
+      map.removeLayer(
+        fromMarker
+      );
+
+    }
+
+
+    if (toMarker) {
+
+      map.removeLayer(
+        toMarker
+      );
+
+    }
+
+
+    /* FROM */
+
+    fromMarker =
+
+      L.marker(
+
+        [
+          from.lat,
+          from.lon
+        ],
+
+        {
+
+          draggable: true
+
+        }
+
+      )
+
+      .addTo(map)
+
+      .bindTooltip(
+
+        "FROM",
+
+        {
+
+          permanent: true,
+
+          direction: "top"
+
+        }
+
+      );
+
+
+    /* TO */
+
+    toMarker =
+
+      L.marker(
+
+        [
+          to.lat,
+          to.lon
+        ],
+
+        {
+
+          draggable: true
+
+        }
+
+      )
+
+      .addTo(map)
+
+      .bindTooltip(
+
+        "TO",
+
+        {
+
+          permanent: true,
+
+          direction: "top"
+
+        }
+
+      );
+
+
+    /* DRAW ROUTE */
+
+    await drawRoute(
+
+      from.lat,
+      from.lon,
+
+      to.lat,
+      to.lon
+
+    );
+
+
+  }
+
+  catch(error) {
+
+    console.error(error);
+
+    document.getElementById(
+      "result"
+    ).innerHTML =
+      "❌ Internet or map service error.";
+
+  }
+
+}
+
+
+</script>
+
+</body>
+</html>
